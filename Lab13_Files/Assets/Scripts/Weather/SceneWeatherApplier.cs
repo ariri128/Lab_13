@@ -10,7 +10,7 @@ public enum SkyCondition
     Day,
     Night,
     Sunny,
-    Sunless,
+    Cloudy,
     Rainy,
     Snowy,
     Sunrise,
@@ -52,7 +52,7 @@ public class SceneWeatherApplier : MonoBehaviour
         new SkyProfile(SkyCondition.Day, 1.0f, new Color(1f, 0.96f, 0.88f)),
         new SkyProfile(SkyCondition.Night, 0.15f, new Color(0.55f, 0.65f, 1f)),
         new SkyProfile(SkyCondition.Sunny, 1.3f, new Color(1f, 0.95f, 0.8f)),
-        new SkyProfile(SkyCondition.Sunless, 0.6f, new Color(0.85f, 0.88f, 0.92f)),
+        new SkyProfile(SkyCondition.Cloudy, 0.6f, new Color(0.85f, 0.88f, 0.92f)),
         new SkyProfile(SkyCondition.Rainy, 0.4f, new Color(0.7f, 0.75f, 0.85f)),
         new SkyProfile(SkyCondition.Snowy, 0.7f, new Color(0.9f, 0.95f, 1f)),
         new SkyProfile(SkyCondition.Sunrise, 0.8f, new Color(1f, 0.7f, 0.45f)),
@@ -142,6 +142,14 @@ public class SceneWeatherApplier : MonoBehaviour
         RenderSettings.sun = _sun;
     }
 
+    // Works out the SkyCondition for this weather right now
+    // Other scripts (UI, analytics) call this so they never depend on which script received the event first
+    public SkyCondition EvaluateCondition(WeatherData data)
+    {
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        return ClassifySky(data, now, IsDaytime(data, now));
+    }
+
     // Turns the OpenWeather condition code and the time of day into a SkyCondition
     // Codes: 2xx thunderstorm, 3xx drizzle, 5xx rain, 6xx snow, 7xx fog/haze, 800 clear, 801-802 few/scattered clouds, 803-804 broken/overcast
     private SkyCondition ClassifySky(WeatherData data, long now, bool isDaytime)
@@ -179,7 +187,7 @@ public class SceneWeatherApplier : MonoBehaviour
             return SkyCondition.Sunny;
         }
 
-        return code >= 803 || code < 800 ? SkyCondition.Sunless : SkyCondition.Day;
+        return code >= 803 || code < 800 ? SkyCondition.Cloudy : SkyCondition.Day;
     }
 
     // True when the current time is between the city's sunrise and sunset

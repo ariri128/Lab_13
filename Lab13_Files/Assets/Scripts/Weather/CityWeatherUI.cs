@@ -58,6 +58,7 @@ public class CityWeatherUI : MonoBehaviour
         _cityDropdown.ClearOptions();
         _cityDropdown.AddOptions(names);
         _cityDropdown.SetValueWithoutNotify(_weatherController.SelectedCityIndex);
+        _cityDropdown.RefreshShownValue();
         SetLabel(_loadingText);
     }
 
@@ -73,11 +74,12 @@ public class CityWeatherUI : MonoBehaviour
         if (_cityDropdown != null)
         {
             _cityDropdown.SetValueWithoutNotify(_weatherController.SelectedCityIndex);
+            _cityDropdown.RefreshShownValue();
         }
 
         string unitSymbol = _weatherController.Units == "imperial" ? "°F" : _weatherController.Units == "metric" ? "°C" : "K";
         string description = data.PrimaryCondition != null ? data.PrimaryCondition.description : "unknown";
-        string sky = _sceneWeatherApplier != null ? _sceneWeatherApplier.CurrentCondition.ToString() : "-";
+        string sky = _sceneWeatherApplier != null ? _sceneWeatherApplier.EvaluateCondition(data).ToString() : "-";
         double hours = data.GetHoursFromLocal();
 
         SetLabel($"{city.DisplayName}, {data.sys.country}\n" +
