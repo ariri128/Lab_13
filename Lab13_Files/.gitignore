@@ -136,3 +136,7 @@ crashlytics-build.properties
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Lab 13: keep API keys out of the public repo
+/[Aa]ssets/Secrets/
+/[Aa]ssets/Secrets.meta
